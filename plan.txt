@@ -1,0 +1,3 @@
+public folder -> js, css, images
+app folder > backend folder
+resources folder > view/templates
