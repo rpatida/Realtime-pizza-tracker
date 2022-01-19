@@ -3,30 +3,62 @@ const app = express();
 const ejs = require("ejs");
 const expressLayouts = require("express-ejs-layouts");
 const path = require("path");
-const PORT = process.env.PORT || 3300;
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+const session = require("express-session");
+const flash = require("express-flash");
+const MongoDBStore = require("connect-mongo")(session);
+
+//setting up config file
+dotenv.config({ path: "app/config/config.env" });
+
+//Database connection
+mongoose
+  .connect(process.env.DB_LOCAL_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then((con) => {
+    console.log("Db connected...");
+  });
+const connection = mongoose.connection;
+
+//session store
+let mongoStore = new MongoDBStore({
+  mongooseConnection: connection,
+  collection: "sessions",
+});
+
+//session config
+app.use(
+  session({
+    secret: process.env.COOKIES_SECRET,
+    resave: false,
+    store: mongoStore,
+    saveUninitialized: false,
+    cookie: { maxAge: 1000 * 60 * 60 * 24 }, //24 hours
+  })
+);
+
+app.use(flash());
+app.use(express.json());
+
+//Global middleware
+app.use((req, res, next) => {
+  res.locals.session = req.session;
+  next();
+});
 
 //Assets
 app.use(express.static("public"));
 
 // set template engine
-console.log(path.join(__dirname, "/resources/views"));
 app.use(expressLayouts);
 app.set("views", path.join(__dirname, "/resources/views"));
 app.set("view engine", "ejs");
 
-app.get("/", (req, res) => {
-  res.render("home");
-});
-app.get("/login", (req, res) => {
-  res.render("auth/login");
-});
-app.get("/register", (req, res) => {
-  res.render("auth/register");
-});
-app.get("/cart", (req, res) => {
-  res.render("customers/cart");
-});
+require("./routes/web")(app);
 
-app.listen(PORT, () => {
-  console.log(`Listing on port ${PORT}`);
+app.listen(process.env.PORT, () => {
+  console.log(`Listing on port ${process.env.PORT}`);
 });

@@ -23,12 +23,13 @@
   <body>
     <nav class="container mx-auto flex items-center justify-between">
       <div>
-        <img
-          src="/img/logo.png"
-          alt="logo"
-          style="height: 70px"
-          class="inline-block px-4 py-2"
-        />
+        <a href="/">
+          <img
+            src="/img/logo.png"
+            alt="logo"
+            style="height: 70px"
+            class="inline-block px-4 py-2"
+        /></a>
       </div>
       <div>
         <ul class="flex items-center">
@@ -37,8 +38,15 @@
           <li class="ml-6"><a href="/register">Register</a></li>
           <li class="ml-6"><a href="/login">Login</a></li>
           <li class="ml-6">
-            <a href="#" class="inline-block px-4 py-2 rounded-full"
-              ><img
+            <a
+              href="/cart"
+              class="inline-block px-4 py-2 rounded-full flex items-center"
+              style="background: #fe5f1e; width: 60px"
+            >
+              <span id="cartCounter" class="text-white font-bold pr-2"
+                ><%=session.cart ? session.cart.totalQty : ''%></span
+              >
+              <img
                 src="/img/cart.png"
                 alt="cart"
                 style="width: 50px; border-radius: 30px"
