@@ -3,6 +3,7 @@ let cartCounter = document.querySelector("#cartCounter");
 
 import axios from "axios";
 const Noty = require("noty");
+import initAdmin from "./admin";
 
 const updateCart = (pizza) => {
   //server request
@@ -35,3 +36,13 @@ addToCart.forEach((btn) => {
     updateCart(pizza);
   });
 });
+
+//remove alert message after x second
+const alertMsg = document.querySelector("#success-alert");
+if (alertMsg) {
+  setTimeout(() => {
+    alertMsg.remove();
+  }, 2000);
+}
+
+initAdmin();
