@@ -9,6 +9,7 @@ const session = require("express-session");
 const flash = require("express-flash");
 const MongoDBStore = require("connect-mongo")(session);
 const passport = require("passport");
+const Emitter = require("events");
 
 //setting up config file
 dotenv.config({ path: "app/config/config.env" });
@@ -31,6 +32,10 @@ let mongoStore = new MongoDBStore({
   collection: "sessions",
 });
 
+//Event Emitter
+const eventEmitter = new Emitter();
+app.set("eventEmitter", eventEmitter);
+
 //session config
 app.use(
   session({
@@ -43,6 +48,7 @@ app.use(
 );
 //passport config
 const passportInit = require("./app/config/passport");
+const { Socket } = require("dgram");
 passportInit(passport);
 app.use(passport.initialize());
 app.use(passport.session());
@@ -68,6 +74,24 @@ app.set("view engine", "ejs");
 
 require("./routes/web")(app);
 
-app.listen(process.env.PORT, () => {
+const server = app.listen(process.env.PORT, () => {
   console.log(`Listing on port ${process.env.PORT}`);
+});
+
+//socket
+const io = require("socket.io")(server);
+io.on("connection", (socket) => {
+  //join
+
+  socket.on("join", (orderId) => {
+    socket.join(orderId);
+  });
+});
+
+eventEmitter.on("orderUpdated", (data) => {
+  io.to(`order_${data.id}`).emit("orderUpdated", data);
+});
+
+eventEmitter.on("orderPlaced", (data) => {
+  io.to("adminRoom").emit("orderPlaced", data);
 });
