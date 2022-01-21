@@ -27,7 +27,7 @@ const orderController = () => {
             delete req.session.cart;
             //Emite Event f
             const eventEmitter = req.app.get("eventEmitter");
-            eventEmitter.emit("orderPlaced", result);
+            eventEmitter.emit("orderPlaced", placedOrder);
 
             return res.redirect("/customer/orders");
           });
